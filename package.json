@@ -16,11 +16,13 @@
     "url": "git+https://github.com/tkh44/redux-roller.git"
   },
   "keywords": [
-    "es6",
-    "modules",
-    "rollup",
-    "bundle",
-    "browser"
+    "redux",
+    "react-component",
+    "react",
+    "scroller",
+    "scroll",
+    "redux scroll",
+    "redux scroller"
   ],
   "author": "Kye Hohenberger",
   "license": "BSD-3-Clause",
