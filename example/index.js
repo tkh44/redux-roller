@@ -1,9 +1,3 @@
-# redux-roller
-Control scrolling with the help of redux.
-
-## Example
-
-```js
 import { Component, PropTypes, DOM } from 'react';
 import { roller } from 'Roller';
 
@@ -60,11 +54,5 @@ class List extends Component {
     }
 }
 
-// optional id, will be generated if none provided
-export default roller(List, 'optional-id');
 
-```
-
-# License
-
-Modified BSD
+export default roller(List, 'long-list-scroll'); // optional id, will be generated if none provided
