@@ -1,6 +1,6 @@
 {
   "name": "redux-roller",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Control scrolling with the help of redux.",
   "main": "dist/redux-roller.umd.js",
   "jsnext:main": "dist/redux-roller.es6.js",
