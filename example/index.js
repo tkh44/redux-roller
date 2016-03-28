@@ -1,58 +1,21 @@
-import { Component, PropTypes, DOM } from 'react';
-import { roller } from 'Roller';
+import { createElement } from 'react';
+import { render } from 'react-dom'
+import { createStore, applyMiddleware, compose, combineReducers } from 'redux';
+import { Provider } from 'react-redux'
+import createLogger from 'redux-logger'
+import { App } from './components';
+import { rollerReducer } from 'Roller';
 
-const { div } = DOM;
+const reducer = combineReducers({
+  roller: rollerReducer
+});
 
-// Add rollerReducer to your main reducer...
+const logger = createLogger();
+const finalCreateStore = compose(
+    applyMiddleware(logger)
+)(createStore);
+const store = finalCreateStore(reducer);
 
-class List extends Component {
+const main = () => createElement(Provider, { store }, createElement(App));
 
-    static propTypes = {
-        scroll: PropTypes.func,
-        rollerId: PropTypes.any,
-        rollerEl: PropTypes.node
-    }
-
-    componentWillUpdate(nextProps) {
-
-        const { rollerEl } = nextProps;
-
-        if (rollerEl) {
-            this.shouldScrollToBottom = rollerEl.scrollTop + rollerEl.offsetHeight >= rollerEl.scrollHeight;
-        }
-    }
-
-    componentDidUpdate(prevProps) {
-
-        const { scroll, rollerId, rollerEl } = this.props;
-
-        if (this.shouldScrollToBottom && this.props.listItems !== prevProps.listItems) {
-            scroll(rollerId, rollerEl.scrollHeight);
-        }
-    }
-
-    render() {
-
-        const { listItems } = this.props;
-
-        return div({
-            className: 'list'
-        },
-            listItems.map((message, i) => {
-
-                return div({
-                    key: i,
-                    style: {
-                        width: '100%',
-                        height: '48'
-                    }
-                },
-                    Math.random()
-                )
-            })
-        );
-    }
-}
-
-
-export default roller(List, 'long-list-scroll'); // optional id, will be generated if none provided
+render(main(), document.querySelector('#demo'));

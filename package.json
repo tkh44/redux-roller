@@ -2,14 +2,15 @@
   "name": "redux-roller",
   "version": "0.0.3",
   "description": "Control scrolling with the help of redux.",
-  "main": "dist/redux-roller.umd.js",
-  "jsnext:main": "dist/redux-roller.es6.js",
+  "main": "lib/redux-roller.js",
+  "jsnext:main": "es6/index.js",
   "scripts": {
-    "prebuild": "eslint lib test",
-    "build": "rollup -c rollup.config.umd.js && rollup -c rollup.config.es6.js",
-    "pretest": "rollup -c rollup.config.test.js",
-    "test": "mocha build/test-bundle.js",
-    "prepublish": "npm run build"
+    "build": "nwb build",
+    "clean": "nwb clean",
+    "start": "nwb serve",
+    "test": "nwb test",
+    "test:watch": "nwb test --server",
+    "deploy:demo": "git subtree push --prefix ./demo/dist origin gh-pages"
   },
   "repository": {
     "type": "git",
@@ -30,22 +31,24 @@
     "url": "https://github.com/tkh44/redux-roller/issues"
   },
   "files": [
+    "css",
     "lib",
     "dist"
   ],
   "homepage": "https://github.com/tkh44/redux-roller#readme",
   "devDependencies": {
-    "babel-eslint": "^5.0.0-beta6",
-    "babel-plugin-transform-class-properties": "^6.6.0",
-    "babel-preset-es2015-rollup": "^1.1.1",
-    "babel-preset-react": "^6.5.0",
-    "eslint": "^1.10.3",
-    "mocha": "^2.3.4",
+    "nwb": "0.8.x",
     "react": "^15.0.0-rc.2",
     "react-dom": "^15.0.0-rc.2",
-    "rollup": "^0.25.4",
-    "rollup-plugin-babel": "^2.4.0",
-    "rollup-plugin-multi-entry": "^1.1.0",
-    "source-map-support": "^0.4.0"
-  }
+    "react-grd": "^0.1.0",
+    "react-motion": "^0.4.2",
+    "react-redux": "^4.4.1",
+    "redux": "^3.3.1",
+    "redux-logger": "^2.6.1"
+  },
+  "peerDependencies": {
+    "react-motion": "^0.4.2",
+    "react": "^0.14.0 || ^15.0.0-rc.1"
+  },
+  "dependencies": {}
 }
