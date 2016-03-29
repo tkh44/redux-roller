@@ -1,8 +1,8 @@
 {
   "name": "redux-roller",
   "version": "0.0.4",
-  "description": "Control scrolling with the help of redux.",
-  "main": "lib/redux-roller.js",
+  "description": "Control scrolling with the help of redux and react-motion.",
+  "main": "lib/index.js.js",
   "jsnext:main": "es6/index.js",
   "scripts": {
     "build": "nwb build",
