@@ -31,9 +31,10 @@
     "url": "https://github.com/tkh44/redux-roller/issues"
   },
   "files": [
-    "css",
+    "es6",
     "lib",
-    "dist"
+    "dist",
+    "src"
   ],
   "homepage": "https://github.com/tkh44/redux-roller#readme",
   "devDependencies": {
