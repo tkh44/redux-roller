@@ -51,5 +51,7 @@
     "react-motion": "^0.4.2",
     "react": "^0.14.0 || ^15.0.0-rc.1"
   },
-  "dependencies": {}
+  "dependencies": {
+    "react-addons-shallow-compare": "^15.0.0"
+  }
 }

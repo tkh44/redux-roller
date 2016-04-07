@@ -1,4 +1,5 @@
 import { Component, PropTypes, createElement, DOM, cloneElement } from 'react';
+import shallowCompare from 'react-addons-shallow-compare';
 import { connect } from 'react-redux';
 import { Motion, spring } from 'react-motion';
 
@@ -10,7 +11,6 @@ export const merge = (...args) => {
 };
 
 export const SCROLL = 'roller/SCROLL';
-export const CREATE = 'roller/CREATE';
 
 export const actions = {};
 
@@ -19,22 +19,20 @@ actions.scroll = (id, scrollTop) => {
     return { type: SCROLL, payload: { id, scrollTop } };
 };
 
-actions.create = (id, scrollTop = 0) => {
+actions.update = (id, scrollTop = 0) => {
 
     return { type: SCROLL, payload: { id, scrollTop } };
 };
 
-export const rollerReducer = (state = {} , action) => {
+export const rollerReducer = (state = {} , action = {}) => {
 
-    const { type, payload = {} } = action;
-
-    switch (type) {
+    switch (action.type) {
 
         case SCROLL:
 
             return merge(state, {
-                [payload.id]:  {
-                    scrollTop: payload.scrollTop
+                [action.payload.id]:  {
+                    scrollTop: action.payload.scrollTop
                 }
             });
 
@@ -48,27 +46,18 @@ export const rollerReducer = (state = {} , action) => {
 
 export class ScrollContent extends Component {
 
-    componentDidUpdate(prevProps) {
-
-        if (this.props.scrollTop !== prevProps.scrollTop) {
-            this.contentEl.scrollTop = this.props.scrollTop;
-            this.props.onScroll(this.props.scrollTop);
-        }
-    }
-
     render() {
 
         const {
-            children,
             className,
             style
         } = this.props;
 
-        return div({
+        return div(merge(this.props, {
             ref: (el) => (this.contentEl = el),
             className: `scrollarea-content ${className || ''}`,
             style
-        }, cloneElement(children, { rollerEl: this.contentEl }));
+        }));
     }
 }
 
@@ -77,9 +66,9 @@ ScrollContent.propTypes = {
 };
 
 
-export const roller = (rollerId = Date.now() * Math.random(), WrappedComponent) => {
+export const roller = (rollerId, WrappedComponent) => {
 
-    if (typeof rollerId !== 'string') {
+    if (typeof rollerId !== 'string' || typeof rollerId !== 'number') {
         WrappedComponent = rollerId;
         rollerId = Date.now() * Math.random();
     }
@@ -89,12 +78,20 @@ export const roller = (rollerId = Date.now() * Math.random(), WrappedComponent) 
         constructor(props) {
 
             super(props);
+            this.updateScroll = this.updateScroll.bind(this);
         }
 
         componentDidMount() {
 
-            this.props.create(rollerId);
+            this.contentEl.onscroll = this.updateScroll;
+            this.updateScroll();
         }
+
+        shouldComponentUpdate(nextProps, nextState) {
+
+            return shallowCompare(this, nextProps, nextState);
+        }
+
 
         render() {
 
@@ -115,6 +112,13 @@ export const roller = (rollerId = Date.now() * Math.random(), WrappedComponent) 
                     );
                 }
             );
+        }
+
+        updateScroll() {
+
+            var scrollTop = this.contentEl.scrollTop;
+            this.props.update(rollerId, { scrollTop });
+            this.props.onScroll && this.props.onScroll(scrollTop);
         }
     }
 
@@ -144,6 +148,6 @@ export const roller = (rollerId = Date.now() * Math.random(), WrappedComponent) 
         scroll: actions.scroll,
         bottom: actions.bottom,
         top: actions.top,
-        create: actions.create
+        update: actions.update
     })(Roller);
 };

@@ -1,3 +1,8 @@
+# Deprecated!!!
+#### Use something like https://github.com/bvaughn/react-virtualized
+
+This may develop into a way to store the virtualized scroll in redux but for now development is on hold.
+
 # redux-roller
 Control scrolling with the help of redux.
 
