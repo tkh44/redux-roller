@@ -10,7 +10,7 @@
     "start": "nwb serve",
     "test": "nwb test",
     "test:watch": "nwb test --server",
-    "deploy:demo": "git subtree push --prefix ./demo/dist origin gh-pages"
+    "deploy:demo": "git subtree push --prefix demo/dist origin gh-pages"
   },
   "repository": {
     "type": "git",
