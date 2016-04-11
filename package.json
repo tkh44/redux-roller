@@ -1,6 +1,6 @@
 {
   "name": "redux-roller",
-  "version": "0.0.8",
+  "version": "1.0.0",
   "description": "Control scrolling with the help of redux and react-motion.",
   "main": "lib/index.js",
   "jsnext:main": "es6/index.js",
