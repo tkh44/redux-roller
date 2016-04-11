@@ -1,80 +1,19 @@
-# Deprecated!!!
-#### Use something like https://github.com/bvaughn/react-virtualized
-
-This may develop into a way to store the virtualized scroll in redux but for now development is on hold.
-
 # redux-roller
-Control scrolling with the help of redux.
+Control scrollTop with the help of redux. Scroll changes are animated with [react-motion](https://github.com/chenglou/react-motion).
 
 ## Installation
 
 ```
-$ npm install redux-roller
+$ npm install redux-roller -S
 ```
+
+## Live Demo
+
+http://tkh44.github.io/redux-roller
 
 ## Example
 
-```js
-import { Component, PropTypes, DOM } from 'react';
-import { roller } from 'Roller';
-
-const { div } = DOM;
-
-// Add rollerReducer to your main reducer...
-
-class List extends Component {
-
-    static propTypes = {
-        scroll: PropTypes.func,
-        rollerId: PropTypes.any,
-        rollerEl: PropTypes.node
-    }
-
-    componentWillUpdate(nextProps) {
-
-        const { rollerEl } = nextProps;
-
-        if (rollerEl) {
-            this.shouldScrollToBottom = rollerEl.scrollTop + rollerEl.offsetHeight >= rollerEl.scrollHeight;
-        }
-    }
-
-    componentDidUpdate(prevProps) {
-
-        const { scroll, rollerId, rollerEl } = this.props;
-
-        if (this.shouldScrollToBottom && this.props.listItems !== prevProps.listItems) {
-            scroll(rollerId, rollerEl.scrollHeight);
-        }
-    }
-
-    render() {
-
-        const { listItems } = this.props;
-
-        return div({
-            className: 'list'
-        },
-            listItems.map((message, i) => {
-
-                return div({
-                    key: i,
-                    style: {
-                        width: '100%',
-                        height: '48'
-                    }
-                },
-                    Math.random()
-                )
-            })
-        );
-    }
-}
-
-// optional id, will be generated if none provided
-export default roller(List, 'optional-id');
-
-```
+[See the demo app](https://github.com/tkh44/redux-roller/tree/master/demo/src)
 
 # License
 

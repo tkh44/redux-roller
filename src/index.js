@@ -46,18 +46,34 @@ export const rollerReducer = (state = {} , action = {}) => {
 
 export class ScrollContent extends Component {
 
+    componentDidMount() {
+
+        const { scrollTop } = this.props;
+
+        this.scrollContent(scrollTop);
+    }
+
+    componentDidUpdate(prevProps) {
+
+        if (this.props.scrollTop !== prevProps.scrollTop) {
+            this.scrollContent(this.props.scrollTop);
+        }
+    }
+
     render() {
 
-        const {
-            className,
-            style
-        } = this.props;
+        const { className, style } = this.props;
 
         return div(merge(this.props, {
-            ref: (el) => (this.contentEl = el),
+            ref: 'contentEl',
             className: `scrollarea-content ${className || ''}`,
             style
         }));
+    }
+
+    scrollContent(y) {
+
+        this.refs.contentEl.scrollTop = y;
     }
 }
 
@@ -66,88 +82,75 @@ ScrollContent.propTypes = {
 };
 
 
-export const roller = (rollerId, WrappedComponent) => {
+export const roller = (options) => {
 
-    if (typeof rollerId !== 'string' || typeof rollerId !== 'number') {
-        WrappedComponent = rollerId;
-        rollerId = Date.now() * Math.random();
-    }
+    const { id } = options;
 
-    class Roller extends Component {
+    return (WrappedComponent) => {
 
-        constructor(props) {
+        class Roller extends Component {
 
-            super(props);
-            this.updateScroll = this.updateScroll.bind(this);
-        }
+            shouldComponentUpdate(nextProps, nextState) {
 
-        componentDidMount() {
+                return shallowCompare(this, nextProps, nextState);
+            }
 
-            this.contentEl.onscroll = this.updateScroll;
-            this.updateScroll();
-        }
+            render() {
 
-        shouldComponentUpdate(nextProps, nextState) {
+                const { scrollState } = this.props;
+                const { scrollTop } = scrollState;
 
-            return shallowCompare(this, nextProps, nextState);
-        }
+                return createElement(Motion, {
+                    style: { y: spring(parseInt(scrollTop, 10), { stiffness: 170, damping: 26, precision: 0.1 }) }
+                },
+                    (current) => {
 
+                        return createElement(ScrollContent, merge(this.props, {
+                                ref: (el) => (this.contentEl = el),
+                                scrollTop: current.y,
+                                onScroll: this.handleScroll
+                            }),
+                            createElement(WrappedComponent, merge(this.props, { rollerId: id }))
+                        );
+                    }
+                );
+            }
 
-        render() {
+            handleScroll = (e) => {
 
-            const rollerConfig = this.props.roller[rollerId];
-            const y = rollerConfig ? rollerConfig.scrollTop : 0;
-
-            return createElement(Motion, {
-                style: { y: spring(y) }
-            },
-                (current) => {
-
-                    return createElement(ScrollContent, merge(this.props, {
-                        ref: (el) => (this.contentEl = el),
-                        scrollTop: current.y,
-                        onScroll: this.props.onScroll
-                    }),
-                        createElement(WrappedComponent, merge(this.props, { rollerId }))
-                    );
+                if (this.props.onScroll) {
+                    this.props.onScroll(e);
                 }
-            );
+            };
         }
 
-        updateScroll() {
-
-            var scrollTop = this.contentEl.scrollTop;
-            this.props.update(rollerId, { scrollTop });
-            this.props.onScroll && this.props.onScroll(scrollTop);
-        }
-    }
-
-    Roller.propTypes = {
-        children: PropTypes.any,
-        className: PropTypes.string,
-        onScroll: PropTypes.func,
-        scrollBarContainerStyle: PropTypes.object,
-        scrollBarStyle: PropTypes.object,
-        style: PropTypes.object,
-        wrapperClassName: PropTypes.string,
-        wrapperStyle: PropTypes.object
-    };
-
-    Roller.defaultProps = {
-        onScroll: () => {}
-    };
-
-    const mapStateToProps = (state) => {
-
-        return {
-            roller: state.roller
+        Roller.propTypes = {
+            children: PropTypes.any,
+            className: PropTypes.string,
+            onScroll: PropTypes.func,
+            scrollBarContainerStyle: PropTypes.object,
+            scrollBarStyle: PropTypes.object,
+            style: PropTypes.object,
+            wrapperClassName: PropTypes.string,
+            wrapperStyle: PropTypes.object
         };
-    };
 
-    return connect(mapStateToProps, {
-        scroll: actions.scroll,
-        bottom: actions.bottom,
-        top: actions.top,
-        update: actions.update
-    })(Roller);
+        Roller.defaultProps = {
+            onScroll: () => {}
+        };
+
+        const mapStateToProps = (state) => {
+
+            return {
+                scrollState: state.roller[id] || { scrollTop : 0 }
+            };
+        };
+
+        return connect(mapStateToProps, {
+            scroll: actions.scroll,
+            bottom: actions.bottom,
+            top: actions.top,
+            update: actions.update
+        })(Roller);
+    };
 };

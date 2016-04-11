@@ -1,0 +1,10 @@
+body {
+    margin: 0;
+}
+
+.scrollarea-content {
+
+    flex: 1 1 auto;
+    overflow-y: scroll;
+    overflow-x: hidden;
+}

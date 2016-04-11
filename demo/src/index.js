@@ -1,3 +1,4 @@
+import './style.css';
 import { createElement } from 'react';
 import { render } from 'react-dom'
 import { createStore, applyMiddleware, compose, combineReducers } from 'redux';
@@ -7,7 +8,7 @@ import { App } from './components';
 import { rollerReducer } from '../../src';
 
 
-const items = Array.from({ length: 10 }, (v, i) => {
+const items = Array.from({ length: 25 }, (v, i) => {
 
     return {
         id: i,

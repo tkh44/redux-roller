@@ -7,5 +7,9 @@ module.exports = {
     global: 'roller',
     jsNext: true,
     umd: false
+  },
+  babel: {
+    stage: 0,
+    optional: ['runtime']
   }
-}
+};

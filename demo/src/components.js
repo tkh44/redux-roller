@@ -1,83 +1,51 @@
 import { Component, PropTypes, createElement, DOM } from 'react';
+import ReactDOM from 'react-dom';
 import { connect } from 'react-redux';
-import { Grid, Cell } from 'react-grd';
-import { roller } from '../../src';
+import { roller, actions as rollerActions  } from '../../src';
 
 
 const { div, h2, p, img, input } = DOM;
 
 const styles = {
-    logo: {
-        width: '100%',
-        maxWidth: 320
-    },
     container: {
         fontFamily: '"Roboto", sans-serif',
         margin: 'auto',
         maxWidth: 960,
         minWidth: 320,
-        width: '100%',
         height: '100vh',
+        minHeight: '100vh',
         display: 'flex',
         flexDirection: 'column',
-        alignItems: 'center'
+        alignItems: 'center',
+        overflow: 'hidden'
     },
     header: {
-        height: 60
+        flex: '0 0 auto'
     },
     controls: {
-        height: 60
+        display: 'flex',
+        alignItems: 'baseline'
     },
     control: {
         background: 'rgba(84, 24, 164, 1)',
         color: 'rgb(255, 255, 255)',
         border: '1px solid rgba(62, 127, 182, 1)',
         fontSize: 14,
-        height: 34,
         padding: 5,
-        width: 120,
         borderRadius: 3,
         boxShadow: 'none',
         margin: 8,
         cursor: 'pointer'
     },
-    lists: {
-        display: 'flex',
-        flex: 1,
-        marginTop: 16,
-        marginBottom: 16,
-        padding: 8,
-        minHeight: 200,
-        borderRadius: 3
-    },
     list: {
-        // width: 'calc(33%)',
-        flexShrink: 1,
-        flexBasis: '30%',
+        display: 'flex',
+        flex: '1 1 auto',
+        flexDirection: 'column',
+        maxWidth: 400,
         padding: 8,
         borderWidth: 1,
         borderStyle: 'solid',
-        borderColor: 'rgba(62, 127, 182, 0.87)',
-        overflow: 'scroll',
-        overflowX: 'none'
-    },
-    cell: {
-        padding: '1rem',
-        borderWidth: 1,
-        borderStyle: 'dashed',
-        borderColor: 'rgba(72, 46, 160, 0.87)',
-        animation: '1s ease-in forwards cell-bg',
-        WebkitAnimation: '400ms cubic-bezier(0.000, 0.405, 0.000, 1.285) forwards cell-bg',
-        transition: 'all 200ms cubic-bezier(0.000, 0.405, 0.000, 1.285)',
-        WebkitTransition: 'all 200ms cubic-bezier(0.000, 0.405, 0.000, 1.285)'
-    },
-    cellControl: {
-        width: '100%',
-        maxWidth: 180,
-        minWidth: 560 / 12,
-        background: '#f8f8f8',
-        color: 'rgba(84, 24, 164, 1)',
-        border: '1px solid rgba(84, 24, 164, 1)'
+        borderColor: 'rgba(62, 127, 182, 0.87)'
     }
 };
 
@@ -95,24 +63,6 @@ export class App extends Component {
 
 class List extends Component {
 
-    componentWillUpdate(nextProps) {
-
-        const { rollerEl } = nextProps;
-
-        if (rollerEl) {
-            this.shouldScrollToBottom = rollerEl.scrollTop + rollerEl.offsetHeight >= rollerEl.scrollHeight;
-        }
-    }
-
-    componentDidUpdate(prevProps) {
-
-        const { scroll, rollerId, rollerEl } = this.props;
-
-        if (this.shouldScrollToBottom && this.props.listItems !== prevProps.listItems) {
-            scroll(rollerId, rollerEl.scrollHeight);
-        }
-    }
-
     render() {
 
         const { items } = this.props;
@@ -124,7 +74,7 @@ class List extends Component {
                         key: i,
                         style: {
                             width: '100%',
-                            height: 98
+                            flex: 1
                         }
                     },
                     img({ src: item.src })
@@ -141,35 +91,25 @@ List.propTypes = {
 };
 
 
-const ListA = roller('listA', class extends Component {
-
-    render() {
-
-        return createElement(List, this.props);
-    }
-});
-
-const ListB = roller('listB', class extends Component {
-
-    render() {
-
-        return createElement(List, this.props);
-    }
-});
-
-const ListC = roller('listC', class extends Component {
-
-    render() {
-
-        return createElement(List, this.props);
-    }
-});
-
+const ListA = roller({id: 'listA'})(List);
 
 
 const Demo = connect((state) => ({
-    items: state.items
+    items: state.items,
+    roller: state.roller
 }))(class extends Component {
+
+    constructor(props) {
+
+        super(props);
+
+        this.state = { sliderValue: 0, scrollHeight: 0 };
+    }
+
+    componentDidMount() {
+
+        this.setScrollerRect();
+    }
 
     render() {
 
@@ -177,22 +117,51 @@ const Demo = connect((state) => ({
 
         return div({ style: styles.container },
            div({ style: styles.header },
-                p(null, 'React components for making working with flexbox simple.'),
+                h2(null, 'Redux-Roller'),
+                p(null, 'Manage scrollTop with redux.'),
+                p(null, ' Animate with react-motion.'),
                 div({ style: styles.controls },
                     input({
                         type: 'range',
                         min: 0,
-                        max: 1000,
-                        value: 0,
-                        step: 1
+                        max: this.state.scrollHeight,
+                        value: this.state.sliderValue,
+                        step: 10,
+                        onChange: this.handleChange
+                    }),
+                    input({
+                        type: 'number',
+                        min: 0,
+                        max: this.state.scrollHeight,
+                        value: this.state.sliderValue,
+                        step: 10,
+                        onChange: this.handleChange
                     })
                 )
             ),
-            div({ style: styles.lists },
-                createElement(ListA, { items }),
-                createElement(ListB, { items }),
-                createElement(ListC, { items })
-            )
+            createElement(ListA, {
+                ref: (el) => (this.scrollerEl = el),
+                items,
+                onScroll: this.handleScroll
+            })
         );
+    }
+
+    handleChange = (e) => {
+
+        var value = e.target.value;
+        this.setState({ sliderValue: value });
+        this.props.dispatch(rollerActions.scroll('listA', value));
+    };
+
+    handleScroll = (e) => {
+
+        this.setState({ scrollHeight: e.target.scrollHeight });
+    };
+
+    setScrollerRect() {
+
+        var scrollHeight = ReactDOM.findDOMNode(this.scrollerEl).scrollHeight;
+        this.setState({ scrollHeight: scrollHeight });
     }
 });
