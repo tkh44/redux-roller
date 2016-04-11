@@ -1,5 +1,6 @@
 import { Component, PropTypes, createElement, DOM } from 'react';
 import ReactDOM from 'react-dom';
+import shallowCompare from 'react-addons-shallow-compare';
 import { connect } from 'react-redux';
 import { roller, actions as rollerActions  } from '../../src';
 
@@ -41,11 +42,15 @@ const styles = {
         display: 'flex',
         flex: '1 1 auto',
         flexDirection: 'column',
-        maxWidth: 400,
-        padding: 8,
+        minWidth: 400,
         borderWidth: 1,
         borderStyle: 'solid',
         borderColor: 'rgba(62, 127, 182, 0.87)'
+    },
+    item: {
+        fontSize: 14,
+        borderBottom: '1px solid gray',
+        paddingLeft: 8
     }
 };
 
@@ -63,6 +68,12 @@ export class App extends Component {
 
 class List extends Component {
 
+    shouldComponentUpdate(nextProps, nextState) {
+
+        return shallowCompare(this, nextProps, nextState);
+    }
+
+
     render() {
 
         const { items } = this.props;
@@ -72,12 +83,9 @@ class List extends Component {
 
                 return div({
                         key: i,
-                        style: {
-                            width: '100%',
-                            flex: 1
-                        }
+                        style: styles.item
                     },
-                    img({ src: item.src })
+                    p(null, `This is item ${item.id}`)
                 )
             })
         );
@@ -96,7 +104,8 @@ const ListA = roller({id: 'listA'})(List);
 
 const Demo = connect((state) => ({
     items: state.items,
-    roller: state.roller
+    roller: state.roller,
+    listA: state.roller.listA || { scrollTop: 0 }
 }))(class extends Component {
 
     constructor(props) {
@@ -111,9 +120,14 @@ const Demo = connect((state) => ({
         this.setScrollerRect();
     }
 
+    shouldComponentUpdate(nextProps, nextState) {
+
+        return shallowCompare(this, nextProps, nextState);
+    }
+
     render() {
 
-        const { items } = this.props;
+        const { items, roller } = this.props;
 
         return div({ style: styles.container },
            div({ style: styles.header },

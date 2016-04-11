@@ -8,12 +8,9 @@ import { App } from './components';
 import { rollerReducer } from '../../src';
 
 
-const items = Array.from({ length: 25 }, (v, i) => {
+const items = Array.from({ length: 1000 }, (v, i) => {
 
-    return {
-        id: i,
-        src: `http://lorempixel.com/400/200/sports/${i}/`
-    }
+    return { id: i + 1 }
 });
 
 const itemsReducer = (state = items) => {

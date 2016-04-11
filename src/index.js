@@ -53,6 +53,12 @@ export class ScrollContent extends Component {
         this.scrollContent(scrollTop);
     }
 
+    shouldComponentUpdate(nextProps, nextState) {
+
+        return shallowCompare(this, nextProps, nextState);
+    }
+
+
     componentDidUpdate(prevProps) {
 
         if (this.props.scrollTop !== prevProps.scrollTop) {
