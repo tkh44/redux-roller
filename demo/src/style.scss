@@ -1,0 +1,19 @@
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    -webkit-tap-highlight-color: rgba(0,0,0,0);
+}
+
+.scrollarea-content {
+
+    flex: 1 1 auto;
+    margin-bottom: 16px;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+    border: 1px solid rgba(84, 24, 164, 1);
+    border-radius: 3px;
+}

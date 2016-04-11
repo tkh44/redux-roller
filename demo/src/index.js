@@ -1,4 +1,4 @@
-import './style.css';
+import './style.scss';
 import { createElement } from 'react';
 import { render } from 'react-dom'
 import { createStore, applyMiddleware, compose, combineReducers } from 'redux';

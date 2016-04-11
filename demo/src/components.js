@@ -12,7 +12,7 @@ const styles = {
         fontFamily: '"Roboto", sans-serif',
         margin: 'auto',
         maxWidth: 960,
-        minWidth: 320,
+        minWidth: 400,
         height: '100vh',
         minHeight: '100vh',
         display: 'flex',
@@ -21,32 +21,49 @@ const styles = {
         overflow: 'hidden'
     },
     header: {
-        flex: '0 0 auto'
+        flex: '0 0 auto',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        width: '100%',
+        maxWidth: 578,
+        minWidth: 400,
+        padding: 16
+    },
+    large: {
+        fontSize: 24,
+        lineHeight: '26px',
+        margin: 4
+    },
+    small: {
+        fontSize: 12,
+        lineHeight: '14px',
+        margin: 0
     },
     controls: {
         display: 'flex',
-        alignItems: 'baseline'
+        flexDirection: 'column',
+        alignItems: 'center',
+        width: '100%',
+        paddingTop: 16
     },
     control: {
         background: 'rgba(84, 24, 164, 1)',
         color: 'rgb(255, 255, 255)',
         border: '1px solid rgba(62, 127, 182, 1)',
         fontSize: 14,
-        padding: 5,
+        padding: 8,
         borderRadius: 3,
         boxShadow: 'none',
-        margin: 8,
-        cursor: 'pointer'
+        margin: 16,
+        cursor: 'pointer',
+        width: '90%'
     },
     list: {
         display: 'flex',
         flex: '1 1 auto',
         flexDirection: 'column',
-        minWidth: 400,
-        borderWidth: 1,
-        borderStyle: 'solid',
-        borderColor: 'rgba(62, 127, 182, 0.87)',
-        WebkitOverflowScrolling : 'touch'
+        minWidth: 400
     },
     item: {
         fontSize: 14,
@@ -66,6 +83,90 @@ export class App extends Component {
     }
 }
 
+const Demo = connect((state) => ({
+    items: state.items,
+    roller: state.roller,
+    listA: state.roller.listA || { scrollTop: 0 }
+}))(class extends Component {
+
+    constructor(props) {
+
+        super(props);
+
+        this.state = { sliderValue: 1 };
+        this.scrollHeight = 0;
+    }
+
+    componentDidMount() {
+
+        this.setScrollHeight(ReactDOM.findDOMNode(this.scrollerEl));
+    }
+
+//    shouldComponentUpdate(nextProps, nextState) {
+//
+//        return shallowCompare(this, nextProps, nextState);
+//    }
+
+    render() {
+
+        const { items } = this.props;
+
+        return div({ style: styles.container },
+            div({ style: styles.header },
+                h2({ style: styles.large}, 'Redux-Roller'),
+                p({ style: styles.small }, 'Manage scrollTop with redux.'),
+                p({ style: styles.small }, ' Animate with react-motion.'),
+                div({ style: styles.controls },
+                    input({
+                        style: {
+                            width: 64,
+                            fontSize: 14,
+                            marginBottom: 8
+                        },
+                        type: 'number',
+                        min: 0,
+                        max: this.state.scrollHeight,
+                        value: this.state.sliderValue,
+                        step: 10,
+                        onChange: this.handleChange
+                    }),
+                    input({
+                        style: {
+//                            width: '100%',
+//                            maxWidth: 400,
+//                            minWidth: 278
+                        },
+                        type: 'range',
+                        min: 0,
+                        max: this.state.scrollHeight,
+                        value: this.state.sliderValue,
+                        step: 10,
+                        onChange: this.handleChange
+                    })
+                )
+            ),
+            createElement(ListA, {
+                ref: (el) => (this.scrollerEl = el),
+                items
+            })
+        );
+    }
+
+    handleChange = (e) => {
+
+        var value = e.target.value;
+        this.setState({ sliderValue: value });
+        this.props.dispatch(rollerActions.scroll('listA', value));
+    };
+
+    setScrollHeight(el) {
+
+        var scrollHeight = el.scrollHeight;
+//        this.setState({ scrollHeight: scrollHeight });
+        this.scrollHeight = scrollHeight;
+    }
+});
+
 
 class List extends Component {
 
@@ -73,7 +174,6 @@ class List extends Component {
 
         return shallowCompare(this, nextProps, nextState);
     }
-
 
     render() {
 
@@ -95,88 +195,8 @@ class List extends Component {
 
 List.propTypes = {
     scroll: PropTypes.func,
-    rollerId: PropTypes.any,
-    rollerEl: PropTypes.node
+    rollerId: PropTypes.any
 };
 
 
-const ListA = roller({id: 'listA'})(List);
-
-
-const Demo = connect((state) => ({
-    items: state.items,
-    roller: state.roller,
-    listA: state.roller.listA || { scrollTop: 0 }
-}))(class extends Component {
-
-    constructor(props) {
-
-        super(props);
-
-        this.state = { sliderValue: 0, scrollHeight: 0 };
-    }
-
-    componentDidMount() {
-
-        this.setScrollerRect();
-    }
-
-    shouldComponentUpdate(nextProps, nextState) {
-
-        return shallowCompare(this, nextProps, nextState);
-    }
-
-    render() {
-
-        const { items, roller } = this.props;
-
-        return div({ style: styles.container },
-           div({ style: styles.header },
-                h2(null, 'Redux-Roller'),
-                p(null, 'Manage scrollTop with redux.'),
-                p(null, ' Animate with react-motion.'),
-                div({ style: styles.controls },
-                    input({
-                        type: 'range',
-                        min: 0,
-                        max: this.state.scrollHeight,
-                        value: this.state.sliderValue,
-                        step: 10,
-                        onChange: this.handleChange
-                    }),
-                    input({
-                        type: 'number',
-                        min: 0,
-                        max: this.state.scrollHeight,
-                        value: this.state.sliderValue,
-                        step: 10,
-                        onChange: this.handleChange
-                    })
-                )
-            ),
-            createElement(ListA, {
-                ref: (el) => (this.scrollerEl = el),
-                items,
-                onScroll: this.handleScroll
-            })
-        );
-    }
-
-    handleChange = (e) => {
-
-        var value = e.target.value;
-        this.setState({ sliderValue: value });
-        this.props.dispatch(rollerActions.scroll('listA', value));
-    };
-
-    handleScroll = (e) => {
-
-        this.setState({ scrollHeight: e.target.scrollHeight });
-    };
-
-    setScrollerRect() {
-
-        var scrollHeight = ReactDOM.findDOMNode(this.scrollerEl).scrollHeight;
-        this.setState({ scrollHeight: scrollHeight });
-    }
-});
+export const ListA = roller({id: 'listA'})(List);
