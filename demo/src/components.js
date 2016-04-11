@@ -45,7 +45,8 @@ const styles = {
         minWidth: 400,
         borderWidth: 1,
         borderStyle: 'solid',
-        borderColor: 'rgba(62, 127, 182, 0.87)'
+        borderColor: 'rgba(62, 127, 182, 0.87)',
+        WebkitOverflowScrolling : 'touch'
     },
     item: {
         fontSize: 14,
