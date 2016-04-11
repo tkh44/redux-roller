@@ -33,7 +33,6 @@
   "files": [
     "es6",
     "lib",
-    "dist",
     "src"
   ],
   "homepage": "https://github.com/tkh44/redux-roller#readme",
