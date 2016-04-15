@@ -68,13 +68,12 @@ export class ScrollContent extends Component {
 
     render() {
 
-        const { className, style } = this.props;
+        const { className } = this.props;
 
-        return div(merge(this.props, {
+        return div({
             ref: 'contentEl',
-            className: `scrollarea-content ${className || ''}`,
-            style
-        }));
+            className: `scrollarea-content ${className || ''}`
+        }, this.props.children);
     }
 
     scrollContent(y) {
@@ -103,42 +102,29 @@ export const roller = (options) => {
 
             render() {
 
-                const { scrollState } = this.props;
+                const { scrollState, onScroll } = this.props;
                 const { scrollTop } = scrollState;
 
                 return createElement(Motion, {
-                    style: { y: spring(parseInt(scrollTop, 10), { stiffness: 170, damping: 26, precision: 0.1 }) }
-                },
+                        style: { y: spring(parseInt(scrollTop, 10), { stiffness: 170, damping: 26, precision: 0.1 }) }
+                    },
                     (current) => {
 
-                        return createElement(ScrollContent, merge(this.props, {
+                        return createElement(ScrollContent, {
                                 ref: (el) => (this.contentEl = el),
                                 scrollTop: current.y,
-                                onScroll: this.handleScroll
-                            }),
+                                onScroll: onScroll
+                            },
                             createElement(WrappedComponent, merge(this.props, { rollerId: id }))
                         );
                     }
                 );
             }
-
-            handleScroll = (e) => {
-
-                if (this.props.onScroll) {
-                    this.props.onScroll(e);
-                }
-            };
         }
 
         Roller.propTypes = {
             children: PropTypes.any,
-            className: PropTypes.string,
-            onScroll: PropTypes.func,
-            scrollBarContainerStyle: PropTypes.object,
-            scrollBarStyle: PropTypes.object,
-            style: PropTypes.object,
-            wrapperClassName: PropTypes.string,
-            wrapperStyle: PropTypes.object
+            onScroll: PropTypes.func
         };
 
         Roller.defaultProps = {
@@ -153,10 +139,7 @@ export const roller = (options) => {
         };
 
         return connect(mapStateToProps, {
-            scroll: actions.scroll,
-            bottom: actions.bottom,
-            top: actions.top,
-            update: actions.update
+            scroll: actions.scroll
         })(Roller);
     };
 };

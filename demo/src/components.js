@@ -68,7 +68,11 @@ const styles = {
     item: {
         fontSize: 14,
         borderBottom: '1px solid gray',
-        paddingLeft: 8
+        height: 48,
+        paddingLeft: 8,
+        background: 'rgba(62, 127, 182, 1)',
+        WebkitBackgroundClip: 'text',
+        WebkitTextFillColor: 'transparent'
     }
 };
 
@@ -93,19 +97,19 @@ const Demo = connect((state) => ({
 
         super(props);
 
-        this.state = { sliderValue: 1 };
-        this.scrollHeight = 0;
+        this.state = { sliderValue: 1, scrollHeight: 0 };
     }
 
     componentDidMount() {
 
-        this.setScrollHeight(ReactDOM.findDOMNode(this.scrollerEl));
+        window.onresize = this.setScrollHeight.bind(this);
+        this.setScrollHeight();
     }
 
-//    shouldComponentUpdate(nextProps, nextState) {
-//
-//        return shallowCompare(this, nextProps, nextState);
-//    }
+    shouldComponentUpdate(nextProps, nextState) {
+
+        return shallowCompare(this, nextProps, nextState);
+    }
 
     render() {
 
@@ -131,16 +135,18 @@ const Demo = connect((state) => ({
                         onChange: this.handleChange
                     }),
                     input({
-                        style: {
-//                            width: '100%',
-//                            maxWidth: 400,
-//                            minWidth: 278
-                        },
                         type: 'range',
+                        style: {
+                            width: '100%',
+                            maxWidth: 400,
+                            minWidth: 320,
+                            fontSize: 14,
+                            margin: 8
+                        },
                         min: 0,
                         max: this.state.scrollHeight,
                         value: this.state.sliderValue,
-                        step: 10,
+                        step: 48,   // item height to give snapping effect
                         onChange: this.handleChange
                     })
                 )
@@ -154,19 +160,33 @@ const Demo = connect((state) => ({
 
     handleChange = (e) => {
 
+        const { dispatch } = this.props;
+
         var value = e.target.value;
         this.setState({ sliderValue: value });
-        this.props.dispatch(rollerActions.scroll('listA', value));
+        dispatch(rollerActions.scroll('listA', value));
     };
 
-    setScrollHeight(el) {
+    setScrollHeight() {
 
+        const el = ReactDOM.findDOMNode(this.scrollerEl);
         var scrollHeight = el.scrollHeight;
-//        this.setState({ scrollHeight: scrollHeight });
-        this.scrollHeight = scrollHeight;
+        this.setState({ scrollHeight: scrollHeight });
     }
 });
 
+
+const Item = ({ item }) => {
+
+    return div({
+        style: {
+            ...styles.item,
+            WebkitFilter: `hue-rotate(${ item.id % 360 }deg)`
+        }
+    },
+        p(null, `This is item ${item.id}`)
+    );
+};
 
 class List extends Component {
 
@@ -180,15 +200,7 @@ class List extends Component {
         const { items } = this.props;
 
         return div({ style: styles.list },
-            items.map((item, i) => {
-
-                return div({
-                        key: i,
-                        style: styles.item
-                    },
-                    p(null, `This is item ${item.id}`)
-                )
-            })
+            items.map((item, i) => createElement(Item, { key: item.id, item }))
         );
     }
 }
